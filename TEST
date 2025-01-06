@@ -1,46 +1,151 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Place this script in a LocalScript inside StarterPlayerScripts
 
-local Window = Rayfield:CreateWindow({
-   Name = "TEST",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "by Sirius",
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
 
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+local flying = false
+local flightSpeed = 10  -- Default flight speed
+local bodyVelocity = Instance.new("BodyVelocity")
+local bodyGyro = Instance.new("BodyGyro")
+bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+bodyGyro.MaxTorque = Vector3.new(4000, 4000, 4000)
 
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "Big Hub"
-   },
+-- Create a ScreenGui to hold buttons and controls
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "FlyingControlGui"
 
-   Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
+-- Create Main Frame (Draggable)
+local controlFrame = Instance.new("Frame", gui)
+controlFrame.Size = UDim2.new(0, 200, 0, 150)
+controlFrame.Position = UDim2.new(0.5, -100, 0.7, 0)
+controlFrame.BackgroundTransparency = 0.2
+controlFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+controlFrame.Active = true
+controlFrame.Draggable = true
 
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
-})
+-- Create Title Bar for dragging
+local titleBar = Instance.new("TextLabel", controlFrame)
+titleBar.Size = UDim2.new(1, 0, 0.3, 0)
+titleBar.Text = "Made by Mineogo"
+titleBar.TextColor3 = Color3.new(1, 1, 1)
+titleBar.BackgroundTransparency = 0.3
+titleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+titleBar.Font = Enum.Font.SourceSans
+titleBar.TextSize = 16
 
-local Tab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
+-- Create Fly Button
+local flyButton = Instance.new("TextButton", controlFrame)
+flyButton.Size = UDim2.new(0.8, 0, 0.2, 0)
+flyButton.Position = UDim2.new(0.1, 0, 0.3, 0)
+flyButton.Text = "Fly"
+flyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 
-local Toggle = Tab:CreateToggle({
-   Name = "Toggle Example",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/MINEOGO/FunHub/refs/heads/main/Inf%20jump"))()
-   end,
-})
+-- Create Speed Up Button
+local speedUpButton = Instance.new("TextButton", controlFrame)
+speedUpButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+speedUpButton.Position = UDim2.new(0, 0, 0.55, 0)
+speedUpButton.Text = "+"
+speedUpButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+
+-- Create Speed Down Button
+local speedDownButton = Instance.new("TextButton", controlFrame)
+speedDownButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+speedDownButton.Position = UDim2.new(0.6, 0, 0.55, 0)
+speedDownButton.Text = "-"
+speedDownButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+-- Create Speed Display
+local speedDisplay = Instance.new("TextLabel", controlFrame)
+speedDisplay.Size = UDim2.new(1, 0, 0.2, 0)
+speedDisplay.Position = UDim2.new(0, 0, 0.85, 0)
+speedDisplay.Text = "Speed: " .. flightSpeed
+speedDisplay.TextColor3 = Color3.new(1, 1, 1)
+speedDisplay.BackgroundTransparency = 1
+speedDisplay.Font = Enum.Font.SourceSans
+speedDisplay.TextSize = 16
+
+-- Start flying
+local function startFlying()
+    if not flying then
+        flying = true
+        bodyVelocity.Parent = rootPart
+        bodyGyro.Parent = rootPart
+    end
+end
+
+-- Stop flying
+local function stopFlying()
+    if flying then
+        flying = false
+        bodyVelocity.Parent = nil
+        bodyGyro.Parent = nil
+    end
+end
+
+-- Button Actions
+flyButton.MouseButton1Click:Connect(function()
+    if flying then
+        stopFlying()
+        flyButton.Text = "Fly"
+    else
+        startFlying()
+        flyButton.Text = "Stop Fly"
+    end
+end)
+
+speedUpButton.MouseButton1Click:Connect(function()
+    flightSpeed = flightSpeed + 5
+    speedDisplay.Text = "Speed: " .. flightSpeed
+end)
+
+speedDownButton.MouseButton1Click:Connect(function()
+    if flightSpeed > 5 then
+        flightSpeed = flightSpeed - 5
+        speedDisplay.Text = "Speed: " .. flightSpeed
+    end
+end)
+
+-- Update flight controls with WASD and mouse look
+local function updateFlight()
+    if flying then
+        local moveDirection = Vector3.new()
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+            moveDirection = moveDirection + rootPart.CFrame.LookVector
+        end
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+            moveDirection = moveDirection - rootPart.CFrame.LookVector
+        end
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+            moveDirection = moveDirection - rootPart.CFrame.RightVector
+        end
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+            moveDirection = moveDirection + rootPart.CFrame.RightVector
+        end
+
+        -- Adjusting for up/down movement
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection = moveDirection + Vector3.new(0, flightSpeed, 0)
+        elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
+            moveDirection = moveDirection - Vector3.new(0, flightSpeed, 0)
+        end
+
+        -- Set velocity and ensure correct flight movement
+        bodyVelocity.Velocity = moveDirection.Unit * flightSpeed
+        bodyGyro.CFrame = rootPart.CFrame
+    end
+end
+
+-- Update flight controls every frame
+game:GetService("RunService").Heartbeat:Connect(function()
+    updateFlight()
+end)
+
+-- Reset when character respawns
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    humanoid = character:WaitForChild("Humanoid")
+    stopFlying()
+end)
