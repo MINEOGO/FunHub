@@ -1,0 +1,29 @@
+local Toggle = Tab:CreateToggle({
+   Name = "Toggle Example",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       if Value then
+           -- Start infinite jump when toggle is on
+           local function infiniteJump()
+               local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+               local gravity = workspace.Gravity
+
+               -- Store the connection to disconnect later if needed
+               jumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                   humanoid:ChangeState("Jumping")
+               end)
+           end
+
+           infiniteJump() -- Start infinite jump
+
+       else
+           -- Disable infinite jump when toggle is off
+           if jumpConnection then
+               jumpConnection:Disconnect()  -- Stop the jump function
+               jumpConnection = nil  -- Reset the connection
+               print("Infinite jump disabled")  -- For debugging purposes
+           end
+       end
+   end,
+})
