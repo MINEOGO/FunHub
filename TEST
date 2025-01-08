@@ -17,8 +17,8 @@ local looping = false
 local minimized = false
 
 -- Set up the GUI frame (smaller size)
-frame.Size = UDim2.new(0, 160, 0, 180)  -- Reduced width and height
-frame.Position = UDim2.new(0.5, -80, 0.5, -90)
+frame.Size = UDim2.new(0, 220, 0, 160)  -- Adjusted size to fit two columns
+frame.Position = UDim2.new(0.5, -110, 0.5, -80)
 frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 frame.Active = true
 frame.Draggable = true
@@ -30,29 +30,29 @@ titleLabel.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
 titleLabel.TextColor3 = Color3.new(1, 1, 1)
 titleLabel.TextScaled = true
 
--- Set up the GUI buttons (Record button made bigger)
-recordButton.Size = UDim2.new(1, 0, 0.3, 0)  -- Made the record button bigger
+-- Set up the GUI buttons (arranged side by side in two columns)
+recordButton.Size = UDim2.new(0.45, 0, 0.3, 0)  -- Made the record button bigger
 recordButton.Position = UDim2.new(0, 0, 0.2, 0)
 recordButton.Text = "Record"
 recordButton.BackgroundColor3 = Color3.new(1, 0, 0)
 
-replayButton.Size = UDim2.new(1, 0, 0.2, 0)
-replayButton.Position = UDim2.new(0, 0, 0.55, 0)
+replayButton.Size = UDim2.new(0.45, 0, 0.3, 0)
+replayButton.Position = UDim2.new(0.55, 0, 0.2, 0)
 replayButton.Text = "Replay"
 replayButton.BackgroundColor3 = Color3.new(0, 1, 0)
 
-loopButton.Size = UDim2.new(1, 0, 0.2, 0)
-loopButton.Position = UDim2.new(0, 0, 0.75, 0)
+loopButton.Size = UDim2.new(0.45, 0, 0.3, 0)
+loopButton.Position = UDim2.new(0, 0, 0.55, 0)
 loopButton.Text = "Loop"
 loopButton.BackgroundColor3 = Color3.new(0, 0, 1)
 
-stopButton.Size = UDim2.new(1, 0, 0.2, 0)
-stopButton.Position = UDim2.new(0, 0, 0.95, 0)
+stopButton.Size = UDim2.new(0.45, 0, 0.3, 0)
+stopButton.Position = UDim2.new(0.55, 0, 0.55, 0)
 stopButton.Text = "Stop"
 stopButton.BackgroundColor3 = Color3.new(1, 1, 0)
 
-minimizeButton.Size = UDim2.new(1, 0, 0.1, 0)
-minimizeButton.Position = UDim2.new(0, 0, 0.1, 0)
+minimizeButton.Size = UDim2.new(1, 0, 0.2, 0)
+minimizeButton.Position = UDim2.new(0, 0, 0.95, 0)
 minimizeButton.Text = "Minimize"
 minimizeButton.BackgroundColor3 = Color3.new(0, 1, 1)
 
@@ -110,14 +110,14 @@ replayButton.MouseButton1Click:Connect(replayActions)
 minimizeButton.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
-        frame.Size = UDim2.new(0, 160, 0, 40) -- Minimized size
+        frame.Size = UDim2.new(0, 220, 0, 40) -- Minimized size
         recordButton.Visible = false
         replayButton.Visible = false
         loopButton.Visible = false
         stopButton.Visible = false
         minimizeButton.Text = "Maximize"
     else
-        frame.Size = UDim2.new(0, 160, 0, 180) -- Normal size
+        frame.Size = UDim2.new(0, 220, 0, 160) -- Normal size
         recordButton.Visible = true
         replayButton.Visible = true
         loopButton.Visible = true
