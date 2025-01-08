@@ -31,7 +31,7 @@ titleLabel.TextColor3 = Color3.new(1, 1, 1)
 titleLabel.TextScaled = true
 
 -- Set up the GUI buttons with increased size
-recordButton.Size = UDim2.new(1, 0, 0.25, 0)
+recordButton.Size = UDim2.new(1, 0, 0, 0.7, 0)
 recordButton.Position = UDim2.new(0, 0, 0.2, 0)
 recordButton.Text = "Record"
 recordButton.BackgroundColor3 = Color3.new(1, 0, 0)
