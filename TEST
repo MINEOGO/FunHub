@@ -1,6 +1,8 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local camera = workspace.CurrentCamera
 local gui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", gui)
 local titleLabel = Instance.new("TextLabel", frame)
@@ -28,28 +30,28 @@ titleLabel.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
 titleLabel.TextColor3 = Color3.new(1, 1, 1)
 titleLabel.TextScaled = true
 
--- Set up the GUI buttons (adjusted size for readability)
-recordButton.Size = UDim2.new(1, 0, 0.2, 0)  -- Adjusted button height
+-- Set up the GUI buttons
+recordButton.Size = UDim2.new(1, 0, 0.25, 0)
 recordButton.Position = UDim2.new(0, 0, 0.2, 0)
 recordButton.Text = "Record"
 recordButton.BackgroundColor3 = Color3.new(1, 0, 0)
 
-replayButton.Size = UDim2.new(1, 0, 0.2, 0)  -- Adjusted button height
+replayButton.Size = UDim2.new(1, 0, 0.25, 0)
 replayButton.Position = UDim2.new(0, 0, 0.45, 0)
 replayButton.Text = "Replay"
 replayButton.BackgroundColor3 = Color3.new(0, 1, 0)
 
-loopButton.Size = UDim2.new(1, 0, 0.2, 0)  -- Adjusted button height
+loopButton.Size = UDim2.new(1, 0, 0.25, 0)
 loopButton.Position = UDim2.new(0, 0, 0.7, 0)
 loopButton.Text = "Loop"
 loopButton.BackgroundColor3 = Color3.new(0, 0, 1)
 
-stopButton.Size = UDim2.new(1, 0, 0.2, 0)  -- Adjusted button height
+stopButton.Size = UDim2.new(1, 0, 0.25, 0)
 stopButton.Position = UDim2.new(0, 0, 0.95, 0)
 stopButton.Text = "Stop"
 stopButton.BackgroundColor3 = Color3.new(1, 1, 0)
 
-minimizeButton.Size = UDim2.new(1, 0, 0.2, 0)  -- Adjusted button height
+minimizeButton.Size = UDim2.new(1, 0, 0.2, 0)
 minimizeButton.Position = UDim2.new(0, 0, 0.2, 0)
 minimizeButton.Text = "Minimize"
 minimizeButton.BackgroundColor3 = Color3.new(0, 1, 1)
@@ -59,7 +61,7 @@ local function recordAction()
     recording = true
     actions = {}
     
-    -- Record the position every 0.1 seconds
+    -- Record the position and orientation every 0.1 seconds
     while recording do
         table.insert(actions, {
             Position = humanoidRootPart.Position,
@@ -72,10 +74,15 @@ end
 -- Function to replay recorded actions
 local function replayActions()
     if #actions > 0 then
-        for _, action in ipairs(actions) do
-            humanoidRootPart.CFrame = CFrame.new(action.Position) * CFrame.Angles(0, math.rad(action.Orientation.Y), 0)
-            wait(0.1) -- Replay speed
-        end
+        repeat
+            -- Move to the starting position
+            humanoidRootPart.CFrame = CFrame.new(actions[1].Position) * CFrame.Angles(0, math.rad(actions[1].Orientation.Y), 0)
+            
+            for _, action in ipairs(actions) do
+                humanoidRootPart.CFrame = CFrame.new(action.Position) * CFrame.Angles(0, math.rad(action.Orientation.Y), 0)
+                wait(0.1) -- Replay speed
+            end
+        until not looping
     end
 end
 
@@ -83,14 +90,12 @@ end
 recordButton.MouseButton1Click:Connect(function()
     if not recording then
         recordAction()
-        recordButton.Text = "Recording..."  -- Update text while recording
     end
 end)
 
 stopButton.MouseButton1Click:Connect(function()
     recording = false
     looping = false
-    recordButton.Text = "Record"  -- Reset button text when stopped
 end)
 
 loopButton.MouseButton1Click:Connect(function()
