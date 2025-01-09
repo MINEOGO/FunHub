@@ -1,1 +1,220 @@
-no
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "FunHub(in-dev)", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local Tab = Window:MakeTab({
+    Name = " 1",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Add the float GUI button
+Tab:AddButton({
+    Name = "float gui",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local rootPart = character:WaitForChild("HumanoidRootPart")
+
+        local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+        gui.Name = "FloatControlGui"
+
+        local controlFrame = Instance.new("Frame", gui)
+        controlFrame.Size = UDim2.new(0, 160, 0, 90)
+        controlFrame.Position = UDim2.new(0.5, -80, 0.7, 0)
+        controlFrame.BackgroundTransparency = 0.2
+        controlFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        controlFrame.Active = true
+        controlFrame.Draggable = true
+
+        local titleBar = Instance.new("TextLabel", controlFrame)
+        titleBar.Size = UDim2.new(1, 0, 0.3, 0)
+        titleBar.Text = "Made by Mineogo"
+        titleBar.TextColor3 = Color3.new(1, 1, 1)
+        titleBar.BackgroundTransparency = 0.3
+        titleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        titleBar.Font = Enum.Font.SourceSans
+        titleBar.TextSize = 16
+
+        local upButton = Instance.new("TextButton", controlFrame)
+        upButton.Size = UDim2.new(0.3, 0, 0.7, 0)
+        upButton.Position = UDim2.new(0, 0, 0.3, 0)
+        upButton.Text = "⬆"
+        upButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+        local downButton = Instance.new("TextButton", controlFrame)
+        downButton.Size = UDim2.new(0.3, 0, 0.7, 0)
+        downButton.Position = UDim2.new(0.7, 0, 0.3, 0)
+        downButton.Text = "⬇"
+        downButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+        local stopButton = Instance.new("TextButton", controlFrame)
+        stopButton.Size = UDim2.new(0.4, 0, 0.7, 0)
+        stopButton.Position = UDim2.new(0.3, 0, 0.3, 0)
+        stopButton.Text = "STOP"
+        stopButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+
+        local bodyPosition
+
+        local function createBodyPosition()
+            bodyPosition = Instance.new("BodyPosition")
+            bodyPosition.MaxForce = Vector3.new(0, math.huge, 0)
+            bodyPosition.Position = rootPart.Position
+            bodyPosition.Parent = rootPart
+        end
+
+        local function startFloating()
+            if not bodyPosition then createBodyPosition() end
+        end
+
+        local function stopFloating()
+            if bodyPosition then
+                bodyPosition:Destroy()
+                bodyPosition = nil
+            end
+        end
+
+        upButton.MouseButton1Down:Connect(function()
+            startFloating()
+            bodyPosition.Position = rootPart.Position + Vector3.new(0, 5, 0)
+        end)
+
+        downButton.MouseButton1Down:Connect(function()
+            startFloating()
+            bodyPosition.Position = rootPart.Position - Vector3.new(0, 5, 0)
+        end)
+
+        stopButton.MouseButton1Click:Connect(function()
+            stopFloating()
+        end)
+
+        player.CharacterAdded:Connect(function(newCharacter)
+            character = newCharacter
+            rootPart = character:WaitForChild("HumanoidRootPart")
+            stopFloating()
+        end)
+    end    
+})
+
+-- Custom Kick Message Textbox
+Tab:AddTextbox({
+    Name = "Custom Kick Message",
+    Default = "Enter kick message here",
+    TextDisappear = true,
+    Callback = function(text)
+        local player = game.Players.LocalPlayer
+        local kickMessage = text -- Use the text input as the message
+        player:Kick(kickMessage) -- Kick the player with the custom message
+    end
+})
+
+-- A simple button that prints a message to the output
+Tab:AddButton({
+    Name = "Button!",
+    Callback = function()
+        print("button pressed")
+    end    
+})
+
+-- Add Fling Mechanic
+Tab:AddButton({
+    Name = "Activate Fling",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+        gui.Name = "TouchFlingGui"
+
+        local flingButton = Instance.new("TextButton", gui)
+        flingButton.Size = UDim2.new(0, 150, 0, 50)
+        flingButton.Position = UDim2.new(0.5, -75, 0.8, 0)
+        flingButton.Text = "Activate Fling"
+        flingButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+        local flingForce = 5000
+        local active = false
+
+        flingButton.MouseButton1Click:Connect(function()
+            active = not active
+            flingButton.Text = active and "Fling Activated" or "Activate Fling"
+        end)
+
+        character.HumanoidRootPart.Touched:Connect(function(hit)
+            if active and hit:IsA("BasePart") and hit.Parent:FindFirstChildOfClass("Humanoid") then
+                local flingVelocity = Instance.new("BodyVelocity", hit)
+                flingVelocity.Velocity = Vector3.new(flingForce, flingForce, flingForce)
+                flingVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                game.Debris:AddItem(flingVelocity, 0.2)
+            end
+        end)
+    end    
+})
+
+-- Add Launch Mechanic
+Tab:AddButton({
+    Name = "Launch",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local rootPart = character:WaitForChild("HumanoidRootPart")
+
+        local launchForce = Instance.new("BodyVelocity")
+        launchForce.Velocity = Vector3.new(0, 200, 0)
+        launchForce.MaxForce = Vector3.new(0, 400000, 0)
+        launchForce.Parent = rootPart
+
+        wait(2)
+        launchForce:Destroy()
+
+        character:WaitForChild("HumanoidRootPart").Touched:Connect(function(hit)
+            if hit:IsA("BasePart") and hit.Position.Y < rootPart.Position.Y - 5 then
+                character:BreakJoints()
+            end
+        end)
+    end    
+})
+
+-- Action Recording GUI
+Tab:AddButton({
+    Name = "Action Recording GUI",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+        gui.Name = "ActionRecordGui"
+
+        local recordButton = Instance.new("TextButton", gui)
+        recordButton.Size = UDim2.new(0, 200, 0, 50)
+        recordButton.Position = UDim2.new(0.5, -100, 0.5, -25)
+        recordButton.Text = "Start Recording"
+        recordButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+        local actionList = {}
+
+        local function recordAction(action)
+            table.insert(actionList, action)
+        end
+
+        local function stopRecording()
+            recordButton.Text = "Recording Stopped"
+            recordButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            print("Actions Recorded:")
+            for _, action in pairs(actionList) do
+                print(action)
+            end
+        end
+
+        recordButton.MouseButton1Click:Connect(function()
+            if recordButton.Text == "Start Recording" then
+                recordButton.Text = "Stop Recording"
+                recordButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+                -- Start recording actions (example of actions)
+                recordAction("Action 1 started")
+                wait(3)
+                recordAction("Action 2 started")
+            else
+                stopRecording()
+            end
+        end)
+    end    
+})
